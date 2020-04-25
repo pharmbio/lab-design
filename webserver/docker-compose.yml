@@ -1,0 +1,40 @@
+version: "3.5"
+
+networks:
+  image-db-net:
+    external:
+      name: image-db-net
+#  traefik:
+#    external:
+#      name: traefik_web
+
+volumes:
+  # Webroot
+  webroot-bind:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${WEBROOT?You need to specify env WEBROOT, e.g. WEBROOT=/home/anders/projekt/labdesign/webserver}
+      o: bind
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: labdesign
+    ports:
+      - 8095:8080
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik_web
+      - traefik.backend=web
+      - traefik.frontend.rule=${TRAEFIK_FRONTEND_RULE?You need to specify env TRAEFIK_FRONTEND_RULE, e.g. TRAEFIK_FRONTEND_RULE=HOST:name.my-domain.com}
+      - traefik.frontend.auth.basic=${TRAEFIK_BASIC_AUTH? You need to specify env TRAEFIK_BASIC_AUTH, e.g. TRAEFIK_BASIC_AUTH=username:$blablsbskjfhbsjhslkfsjlkdslkjf/kljsd}
+      - traefik.port=8080
+    networks:
+      - image-db-net
+#      - traefik
+    volumes:
+      - webroot-bind:/app

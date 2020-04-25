@@ -1,30 +1,13 @@
 #!/usr/bin/env python3
-import pymongo as pymongo
 import logging
 import json
 import psycopg2
 import settings as imgdb_settings
 
-def get_default_collection():
-    dbclient = pymongo.MongoClient(username=imgdb_settings.DB_USER,
-                                   password=imgdb_settings.DB_PASS,
-                                   # connectTimeoutMS=500,
-                                   serverSelectionTimeoutMS=1000,
-                                   host=imgdb_settings.DB_HOSTNAME,
-                                   port=imgdb_settings.DB_PORT
-                                   )
-
-    img_db = dbclient["pharmbio_db"]
-    img_collection = img_db["pharmbio_microimages"]
-
-    return img_collection
-
 def get_connection():
     return psycopg2.connect(host=imgdb_settings.DB_HOSTNAME,
                                  database=imgdb_settings.DB_NAME,
                                  user=imgdb_settings.DB_USER, password=imgdb_settings.DB_PASS)
-
-
 
 def list_plate(find_plate):
     logging.debug("list_plates")
