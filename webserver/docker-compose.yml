@@ -30,8 +30,8 @@ services:
       - traefik.enable=true
       - traefik.docker.network=traefik_web
       - traefik.backend=web
-      - traefik.frontend.rule=Host:labdesign-dev.pharmb.io
-      - traefik.frontend.auth.basic=pharmbio:$$2y$$05$$RdRhskrhXJijo0FUKfVIT.E7Q2kH2Bf0BZ.1KYYcy4R9Piat/DiUK
+      - traefik.frontend.rule=${TRAEFIK_FRONTEND_RULE?You need to specify env TRAEFIK_FRONTEND_RULE, e.g. TRAEFIK_FRONTEND_RULE=HOST:name.my-domain.com}
+      - traefik.frontend.auth.basic=${TRAEFIK_BASIC_AUTH? You need to specify env TRAEFIK_BASIC_AUTH, e.g. TRAEFIK_BASIC_AUTH=username:$blablsbskjfhbsjhslkfsjlkdslkjf/kljsd}
       - traefik.port=8080
     networks:
       - image-db-net

@@ -7,6 +7,7 @@
 WEBROOT=/home/anders/projekt/labdesign/webserver
 
 # Tunnel web
+ssh -L 8095:localhost:8095 anders@130.238.44.10 -p 32222 # adminer tunnel
 
 # to minify javascript:
 npm install
