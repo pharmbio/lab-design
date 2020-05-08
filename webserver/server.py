@@ -8,15 +8,15 @@ import logging
 import tornado
 import tornado.web
 
-from handlers.query_handler import QueryHandler, ListImagesQueryHandler
+from handlers.query_handlers import ListProtocolsQueryHandler, SaveProtocolQueryHandler, DeleteProtocolQueryHandler
 
-import settings as imgdb_settings
+import settings as labdesign_settings
 
 SETTINGS = {
     'debug': True,
     'develop': True,
     'template_path':'templates/',
-    'xsrf_cookies': False, # Anders disabled this - TODO enable again
+    'xsrf_cookies': False, # Anders disabled this - TODO enable again....maybe...
     'cookie_secret':'some-really-secret-secret',
     # static path is defined in handler below
 }
@@ -44,14 +44,13 @@ class IndexTemplateHandler(tornado.web.RequestHandler): #pylint: disable=abstrac
 
 ROUTES = [
           (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), 'static')}),
-          (r'/api/query', QueryHandler),
-          (r'/api/list/(?P<plate>[^\/]+)', ListImagesQueryHandler),
-          (r'/bstest.html', DefaultTemplateHandler),
+          (r'/api/protocols/(?P<protocol>.+)', ListProtocolsQueryHandler),
+          (r'/api/protocol/save', SaveProtocolQueryHandler),
+          (r'/api/protocol/delete/(?P<protocol>.+)', DeleteProtocolQueryHandler),
           (r'/index.html', DefaultTemplateHandler),
-          (r'/old-index.html', DefaultTemplateHandler),
           (r'/', IndexTemplateHandler),
          ]
-
+         
 if __name__ == '__main__':
 
     tornado.log.enable_pretty_logging()

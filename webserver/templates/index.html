@@ -47,6 +47,21 @@
       width: 220px;
     }
 
+    textarea.mytextarea {
+     /* height: 70%;
+      width: 90%;*/
+      background-color: whitesmoke;
+    }
+
+    .modal-backdrop.show{
+      opacity: 0.25;
+    }
+    #alertmodal {
+     top:5%;
+     right:50%;
+     outline: none;
+    }
+
 
     /* This is just for making left sidebar scrollable */
     /*
@@ -111,18 +126,18 @@
 
   <!-- Sidebar -->
   <div class="bg-light border-right" id="sidebar-wrapper";>
-    <div class="sidebar-heading">Projects/Plates</div>
+    <div class="sidebar-heading">Protocols</div>
 
     <div class="sidebar-heading" >
       <!-- <div class="list-group list-group-flush">-->
       <ul id='result-list'></ul>
-
+<!--
       <div id="left-sidebar-spinner" class="d-flex justify-content-center">
          <div class="spinner-border text-info" role="status">
            <span class="sr-only">Loading plates...</span>
          </div>
       </div>
-
+-->
       <!--
       <div class="d-flex justify-content-center">
           <div class="text-info">
@@ -141,18 +156,6 @@
 
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-
-      <!-- Search form -->
-      <form id='query-form' onsubmit='apiQuery(event);return false;'>
-        <div class="input-group">
-
-          <input type="text" class="form-control input-sm" maxlength="" placeholder="Search" />
-          <button type="submit" class="btn btn-info btn-sm ml-2">Search</button>
-
-          {% raw xsrf_form_html() %}
-
-        </div>
-      </form>
 
       <!-- Navbar menues -->
       <div class="collapse navbar-collapse" id="navbarSupportedContent" >
@@ -185,82 +188,53 @@
       </div>
     </nav>
 
-    <!-- Toolbar -->
-    <div id="plate-tool-div" class="container-fluid mt-2 mb-2">
 
-      <!-- Toolbar form -->
-      <form id='plate-tool-form' onsubmit='redrawPlate(); return false;'>
+    <!-- Main form -->
+    <form id='main-form' onsubmit='return false;'>
+      
+      <!-- Toolbar -->
+      <div id="toolbar-div" class="container-fluid mt-2 mb-2">
 
         <div class="input-group align-bottom">
 
-          <!-- Plate label -->
-          <label id="plate-name-label" class="input-group-text" style="width: 180px;overflow: hidden;text-overflow: ellipsis; white-space: nowrap;">
-            Plate:
-          </label>
-
-          <!-- Timepoint selector -->
+          <!-- Protocol selector -->
           <div class="input-group-prepend ml-2">
-            <label class="input-group-text" for="timepoint-select">Timepoint</label>
+            <label class="input-group-text" for="protocol-select">Protocol:</label>
           </div>
-          <select class="custom-select" style="width: 60px;" id="timepoint-select" onchange="redrawPlate(); return false;">
+          <select class="form-control" style="max-width: 300px;" id="protocol-select" onchange="redrawSelectedProtocol(); return false;">
           </select>
+          
+          <!-- Verify button-->
+          <button type="button" id="verify-button" class="btn btn-info ml-2" onclick="verifyProtocolStepsJson(true)">Verify</button>
 
-          <!-- Timepoint slider -->
-          <div id="slider" class="ml-2" style="width:100px;height:20px;hidden:true;">
-            <input type="text" id="timepoint-slider" name="" value="" style="width:0px;" />
-          </div>
+          <!-- Save buttons-->
+          <button type="button" id="save-button" class="btn btn-info ml-2" data-toggle="modal" data-target="#save-protocol-modal">Save</button>
 
-          <!-- Timepoint animation -->
-          <div class="form-group form-check" style="margin-bottom: 0px;">
-            <div class="col-md-4">
-              <input type="checkbox" class="form-check-input" style="margin-top: 1.0rem;" id="animate-cbx" disabled onchange="toggleAnimation(); return false;">
-              <label class="form-check-label" style="margin-top:0.8rem;" for="animate-cbx">Animate</label>
-            </div>
-          </div>
-
-          <!-- Animation speed selector -->
-          <div class="input-group-prepend ml-2">
-            <label class="input-group-text" for="animation-speed-select">Anim. speed</label>
-          </div>
-          <select class="custom-select" id="animation-speed-select" style="width: 50px;" onchange="updateAnimationSpeed(); return false;">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option selected value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-          </select>
-
-          <!-- Wellsample selector -->
-          <div class="input-group-prepend ml-2">
-            <label class="input-group-text" for="wellsample-select">Site</label>
-          </div>
-          <select class="custom-select" id="wellsample-select" style="width: 50px;" onchange="redrawPlate(); return false;">
-          </select>
-
-          <!-- Channel selector -->
-          <div class="input-group-prepend ml-2">
-            <label class="input-group-text" for="channel-select">Channel</label>
-          </div>
-          <select class="custom-select" id="channel-select" style="width: 75px;" onchange="redrawPlate(); return false;">
-          </select>
+          <!-- Delete button-->
+          <button type="button" id="verify-button" class="btn btn-info ml-2" data-toggle="modal" data-target="#delete-protocol-modal">Delete</button>
 
         </div>
 
-      </form>
-    </div>
-    <!-- end Toolbar -->
+      </div>
+      <!-- end Toolbar -->
 
-    <!-- Table div -->
-    <div id="table-div" class="container-fluid flex-fill">
+      <!-- Protocol steps div -->
+      <div id="table-div" class="container-fluid flex-fill">
+     
+        <div class="form-group">
+          <label for="inputsm">Protocol steps</label>
+          <textarea name="plate-protocol-steps" class="form-control mytextarea" rows=20 id="plate-protocol-steps">
+            Hello
+          </textarea>
+        </div>
 
+      </div>
+    </form>
 
-    </div>
+    
 
     <!-- Meta data div -->
+    <!--
     <div id="meta-div" class="container-fluid flex-fill mt-2">
 
       <div class="input-group">
@@ -268,12 +242,12 @@
           <label class="input-group-text" for="add-field-button">Plate metadata</label>
         </div>
         <button type="button" id="add-field-button" class="btn btn-info btn-sm ml-2" data-toggle="modal" data-target="#add-datafield">Add field</button>
-        <!--<button type="button" class="btn btn-primary" data-toggle="modal">Button label</button>-->
         <button type="button" id="delete-field-button" class="btn btn-info btn-sm ml-2" data-toggle="modal" data-target="#delete-datafield">Delete field</button>
       </div>
 
       <div id="meta-div-json"></div>
     </div>
+  -->
 
   </div>
 </div>
@@ -284,60 +258,82 @@
 
 <!-- Modal dialogs -->
 
-<!-- Modal dialog "Add database field ...." -->
-<div class="modal fade" id="add-datafield" tabindex="-1" role="dialog" aria-labelledby="add-datafieldLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+
+<!-- Modal dialog "Save ...." -->
+<div class="modal" id="save-protocol-modal" tabindex="-1" role="dialog" aria-labelledby="save-protocolLabel" aria-hidden="true">
+  <div class="modal-dialog " role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="add-datafieldLabel">Add database field to this plate</h5>
+        <h5 class="modal-title" id="save-protocolLabel">Save protocol</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <form>
           <div class="form-group">
-            <label for="add-field-name" class="col-form-label">Field to add:</label>
-            <input type="text" class="form-control" id="add-field-name">
+            <label for="save-protocol-name" class="col-form-label">Protocol Name:</label>
+            <input type="text" class="form-control" id="save-protocol-name">
           </div>
-          <div class="form-group">
-            <label for="add-field-text" class="col-form-label">Field data:</label>
-            <textarea class="form-control" rows="10" style="height:100%;" id="add-field-text"></textarea>
-          </div>
-        </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary">Add field to plate</button>
+        <button type="button" class="btn btn-primary" onclick="apiSaveProtocol()">Save</button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Modal dialog "Delete database field ...." -->
-<div class="modal" id="delete-datafield" tabindex="-1" role="dialog" aria-labelledby="delete-datafieldLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
+<div class="modal" id="delete-protocol-modal"  tabindex="-1" role="dialog" aria-labelledby="delete-protocolLabel" aria-hidden="true">
+  <div class="modal-dialog " role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="delete-datafieldLabel">Delete database field from this plate</h5>
+        <h5 class="modal-title" id="delete-protocolLabel">Delete protocol</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
       <div class="modal-body">
-        <form>
           <div class="form-group">
-            <label for="delete-field-name" class="col-form-label">Field to delete:</label>
-            <select class="custom-select" id="delete-field-name" onchange="return false;">
-              <option value="Select...">Select...</option>
-              <option value="Reagents">Reagents</option>
-              <option value="Another field">Another field</option>
-            </select>
-        </form>
+            <label for="delete-protocol-name" class="col-form-label">Protocol to be deleted, Name:</label>
+            <input type="text" class="form-control" id="delete-protocol-name">
+          </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary">Delete field from plate</button>
+        <button type="button" class="btn btn-danger" onclick="apiDeleteProtocol()">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Verification modal alert OK-->
+<div class="modal" id="alert-modal">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header bg-success">
+        <h5 class="modal-title"></h5>
+      </div>
+      <div class="modal-body" id="alert-modal-body-div">
+        Verification OK
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- Modal dialog "Errormessage.." -->
+<div class="modal" id="error-modal" tabindex="1" role="dialog" aria-labelledby="errormodalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="errormodalLabel">Error</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="errordiv" class="modal-body"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">OK</button>
       </div>
     </div>
   </div>
@@ -371,7 +367,17 @@
   // Create an empty table to start with - just because it looks good!
   let table = createEmptyTable(8, 12);
   let container = document.getElementById('table-div');
-  container.appendChild(table);
+  //container.appendChild(table);
+
+  // Set display error function
+  window.onerror =  displayModalJavaScriptError;
+
+  // Setup UI
+  initUI();
+
+  //$('#my-button').click(function() {
+  //  SleepTime(2000);
+  //})
 
   // jQuery init methods
   $(document).ready(function(){
@@ -393,7 +399,7 @@
           elem.onchange();
         }
       }
-    });
+    })
 
     // Submit empty search to load all plates into start page
     $("#query-form").submit();

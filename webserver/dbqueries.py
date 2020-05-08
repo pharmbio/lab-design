@@ -2,88 +2,25 @@
 import logging
 import json
 import psycopg2
-import settings as imgdb_settings
+import settings as labdesign_settings
 
 def get_connection():
-    return psycopg2.connect(host=imgdb_settings.DB_HOSTNAME,
-                                 database=imgdb_settings.DB_NAME,
-                                 user=imgdb_settings.DB_USER, password=imgdb_settings.DB_PASS)
+    return psycopg2.connect(host=labdesign_settings.DB_HOSTNAME,
+                                 database=labdesign_settings.DB_NAME,
+                                 user=labdesign_settings.DB_USER, password=labdesign_settings.DB_PASS)
 
-def list_plate(find_plate):
-    logging.debug("list_plates")
+def list_protocols():
 
-    logging.debug("find_plate" + find_plate)
-
-    conn = None
-    try:
-
-        conn = get_connection()
-
-        query = ("SELECT plate, timepoint, path, well, site, channel "
-                 "FROM images "
-                 "WHERE plate = %s "
-                 "ORDER BY well, site, channel")
-
-        logging.info("query" + query)
-
-        cursor = conn.cursor()
-        cursor.execute(query, (find_plate, ))
-
-        resultlist = []
-
-        for row in cursor:
-            resultlist.append({'plate': row[0],
-                          'timepoint': row[1],
-                          'path': row[2],
-                          'well': row[3],
-                          'site': row[4],
-                          'channel': row[5]
-                          })
-
-        # resultlist = [dict(zip([key[0] for key in cursor.description], row)) for row in result]
-
-        cursor.close()
-
-        # Before returning (to web) delete the for user hidden "root part" IMAGES_ROOT_FOLDER part, e.g. /share/mikro/IMX.....
-        for image in resultlist:
-            for key, value in image.items():
-                if key == "path":
-                    new_value = str(value).replace( imgdb_settings.IMAGES_ROOT_FOLDER , "")
-                    image.update( {'path': new_value})
-
-        plates_dict = {}
-        for image in resultlist:
-            plates_dict.setdefault(image['plate'], {}) \
-                .setdefault(image['timepoint'], {}) \
-                .setdefault(image['well'], {}) \
-                .setdefault(image['site'], {}) \
-                .setdefault(image['channel'], image['path'])
-
-
-        #plateObj = {'plate_name:', plate,
-        #            'timepoints:', platesdict['plate']
-        #            }
-
-        return {'plates': plates_dict}
-
-    except (Exception, psycopg2.DatabaseError) as error:
-        logging.exception("Message")
-    finally:
-        if conn is not None:
-            conn.close()
-
-def list_plates(DB_HOSTNAME="image-mongo"):
-
-    logging.debug("list_plates")
+    logging.debug("list_protocols")
 
     conn = None
     try:
 
         conn = get_connection()
 
-        query = ("SELECT DISTINCT plate, project "
-                 "FROM images "
-                 "ORDER BY project, plate")
+        query = ("SELECT name, steps "
+                 "FROM protocols "
+                 "ORDER BY name")
 
         logging.info("query" + str(query))
 
@@ -93,21 +30,83 @@ def list_plates(DB_HOSTNAME="image-mongo"):
         resultlist = []
 
         for row in cursor:
-            resultlist.append({'plate': row[0],
-                               'project': row[1]
+            resultlist.append({'name': row[0],
+                               'steps': row[1]
                                })
-
-        # resultlist = [dict(zip([key[0] for key in cursor.description], row)) for row in result]
-
+                               
         cursor.close()
 
         logging.debug(json.dumps(resultlist, indent=2))
 
         return resultlist
 
-
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, psycopg2.DatabaseError) as err:
         logging.exception("Message")
+        raise err
+    finally:
+        if conn is not None:
+            conn.close()
+
+def save_protocol(name, data):
+
+    logging.debug("save_protocol")
+
+    conn = None
+    try:
+
+        conn = get_connection()
+        
+        # Build query
+        query = ("INSERT INTO protocols(name, steps)"
+                 "VALUES (%s, %s)")
+        logging.info("query" + str(query))
+
+        # Add protocol steps into a json array
+        #steps_array = data.splitlines()
+        #json_array = [];
+        #for stp in steps_array: 
+        #  json_array.append(json.loads(step))
+
+        #logging.debug("data_json" + str(jsodatan_array))
+
+        cursor = conn.cursor()
+        retval = cursor.execute(query, (name, data))
+        conn.commit()
+        cursor.close()
+
+        return "OK"
+
+    except (Exception, psycopg2.DatabaseError) as err:
+        logging.exception("Message")
+        raise err
+    finally:
+        if conn is not None:
+            conn.close()
+
+def delete_protocol(name):
+
+    logging.debug("delete_protocol")
+    logging.debug("name" + str(name))
+
+    conn = None
+    try:
+
+        conn = get_connection()
+        
+        # Build query
+        query = ("DELETE FROM protocols WHERE name = %s")
+        logging.info("query" + str(query))
+
+        cursor = conn.cursor()
+        retval = cursor.execute(query, (name,))
+        conn.commit()
+        cursor.close()
+
+        return "OK"
+
+    except (Exception, psycopg2.DatabaseError) as err:
+        logging.exception("Message")
+        raise err
     finally:
         if conn is not None:
             conn.close()

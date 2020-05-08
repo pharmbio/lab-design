@@ -1,12 +1,12 @@
 version: "3.5"
 
 networks:
-  image-db-net:
+  labdesign-net:
     external:
-      name: image-db-net
-#  traefik:
-#    external:
-#      name: traefik_web
+      name: labdesign-net
+  traefik_web:
+    external:
+      name: traefik_web
 
 volumes:
   # Webroot
@@ -27,14 +27,17 @@ services:
       - 8095:8080
     restart: always
     labels:
-      - traefik.enable=true
-      - traefik.docker.network=traefik_web
-      - traefik.backend=web
-      - traefik.frontend.rule=${TRAEFIK_FRONTEND_RULE?You need to specify env TRAEFIK_FRONTEND_RULE, e.g. TRAEFIK_FRONTEND_RULE=HOST:name.my-domain.com}
-      - traefik.frontend.auth.basic=${TRAEFIK_BASIC_AUTH? You need to specify env TRAEFIK_BASIC_AUTH, e.g. TRAEFIK_BASIC_AUTH=username:$blablsbskjfhbsjhslkfsjlkdslkjf/kljsd}
-      - traefik.port=8080
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_web"
+      - "traefik.port=8095"
+      - "traefik.http.routers.web.rule=Host(`${TRAEFIK_FRONTEND_URL?You need to specify env TRAEFIK_FRONTEND_URL, e.g. TRAEFIK_FRONTEND_URL=name.my-domain.com}`)"
+      - "traefik.http.routers.web.entrypoints=websecure"
+      - "traefik.http.routers.web.tls.certresolver=myresolver"
+      # - traefik.frontend.auth.basic=${TRAEFIK_BASIC_AUTH? You need to specify env TRAEFIK_BASIC_AUTH, e.g. TRAEFIK_BASIC_AUTH=username:$blablsbskjfhbsjhslkfsjlkdslkjf/kljsd}
+
+
     networks:
-      - image-db-net
-#      - traefik
+      - labdesign-net
+      - traefik_web
     volumes:
       - webroot-bind:/app
