@@ -1,4 +1,4 @@
-version: "3.5"
+version: "2.4"
 
 networks:
   labdesign-net:
@@ -10,7 +10,7 @@ networks:
 
 volumes:
   # Webroot
-  webroot-bind:
+  labdesign-webroot-bind:
     driver: local
     driver_opts:
       type: none
@@ -18,21 +18,21 @@ volumes:
       o: bind
 
 services:
-  web:
+  labdesignweb:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: labdesign
     ports:
-      - 8095:8080
+      - 8094:8080
     restart: always
     labels:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_web"
-      - "traefik.port=8095"
-      - "traefik.http.routers.web.rule=Host(`${TRAEFIK_FRONTEND_URL?You need to specify env TRAEFIK_FRONTEND_URL, e.g. TRAEFIK_FRONTEND_URL=name.my-domain.com}`)"
-      - "traefik.http.routers.web.entrypoints=websecure"
-      - "traefik.http.routers.web.tls.certresolver=myresolver"
+      - "traefik.port=8094"
+      - "traefik.http.routers.labdesignweb.rule=Host(`${TRAEFIK_FRONTEND_URL?You need to specify env TRAEFIK_FRONTEND_URL, e.g. TRAEFIK_FRONTEND_URL=name.my-domain.com}`)"
+      - "traefik.http.routers.labdesignweb.entrypoints=websecure"
+      - "traefik.http.routers.labdesignweb.tls.certresolver=myresolver"
       # - traefik.frontend.auth.basic=${TRAEFIK_BASIC_AUTH? You need to specify env TRAEFIK_BASIC_AUTH, e.g. TRAEFIK_BASIC_AUTH=username:$blablsbskjfhbsjhslkfsjlkdslkjf/kljsd}
 
 
@@ -40,4 +40,4 @@ services:
       - labdesign-net
       - traefik_web
     volumes:
-      - webroot-bind:/app
+      - labdesign-webroot-bind:/app

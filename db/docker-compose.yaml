@@ -25,7 +25,7 @@ services:
     networks:
       - labdesign-net
 
-  adminer:
+  labdesidnadminer:
     image: adminer
     restart: always
     ports:
@@ -37,6 +37,6 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_web"
       - "traefik.port=8088"
-      - "traefik.http.routers.adminer.rule=Host(`${TRAEFIK_FRONTEND_URL?You need to specify env TRAEFIK_FRONTEND_URL, e.g. TRAEFIK_FRONTEND_URL=name.my-domain.com}`)"
-      - "traefik.http.routers.adminer.entrypoints=websecure"
-      - "traefik.http.routers.adminer.tls.certresolver=myresolver"
+      - "traefik.http.routers.labdesidnadminer.rule=Host(`${TRAEFIK_FRONTEND_URL?You need to specify env TRAEFIK_FRONTEND_URL, e.g. TRAEFIK_FRONTEND_URL=name.my-domain.com}`)"
+      - "traefik.http.routers.labdesidnadminer.entrypoints=websecure"
+      - "traefik.http.routers.labdesidnadminer.tls.certresolver=myresolver"

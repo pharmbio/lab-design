@@ -48,6 +48,7 @@ ROUTES = [
           (r'/api/protocol/save', SaveProtocolQueryHandler),
           (r'/api/protocol/delete/(?P<protocol>.+)', DeleteProtocolQueryHandler),
           (r'/index.html', DefaultTemplateHandler),
+          (r'/protocols.html', DefaultTemplateHandler),
           (r'/', IndexTemplateHandler),
          ]
          
