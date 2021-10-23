@@ -1,9 +1,9 @@
 version: "2.4"
 
 networks:
-  labdesign-net:
+  image-db-net:
     external:
-      name: labdesign-net
+      name: image-db-net
   traefik_web:
     external:
       name: traefik_web
@@ -15,6 +15,13 @@ volumes:
     driver_opts:
       type: none
       device: ${WEBROOT?You need to specify env WEBROOT, e.g. WEBROOT=/home/anders/projekt/labdesign/webserver}
+      o: bind
+  # this is microimages
+  labdb-files-bind:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${SHARE_LABDB?You need to specify env SHARE_LABDB, e.g. SHARE_LABDB=/share/data/labdb}
       o: bind
 
 services:
@@ -37,7 +44,9 @@ services:
 
 
     networks:
-      - labdesign-net
+      - image-db-net
       - traefik_web
     volumes:
       - labdesign-webroot-bind:/app
+      - labdb-files-bind:/share/data/labdb
+

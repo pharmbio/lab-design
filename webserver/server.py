@@ -8,7 +8,9 @@ import logging
 import tornado
 import tornado.web
 
-from handlers.query_handlers import ListProtocolsQueryHandler, SaveProtocolQueryHandler, DeleteProtocolQueryHandler
+from handlers.query_handlers import (ListProtocolsQueryHandler, SaveProtocolQueryHandler, DeleteProtocolQueryHandler,
+                                     ListAllProjectsQueryHandler, ListProjectfilesHandler,
+                                     ListAllExperimentsQueryHandler, ListExperimentsQueryHandler, ListExperimentQueryHandler)
 
 import settings as labdesign_settings
 
@@ -30,7 +32,7 @@ class DefaultTemplateHandler(tornado.web.RequestHandler): #pylint: disable=abstr
         """
         logging.debug(self.request.path)
 
-        self.render(self.request.path.strip('/'))
+        self.render(self.request.path.strip('/'), page_name=self.request.path.strip('/'))
         #self.render('index.html')
 
 class IndexTemplateHandler(tornado.web.RequestHandler): #pylint: disable=abstract-method
@@ -44,11 +46,21 @@ class IndexTemplateHandler(tornado.web.RequestHandler): #pylint: disable=abstrac
 
 ROUTES = [
           (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': os.path.join(os.path.dirname(__file__), 'static')}),
+          (r'/files/(.*)', tornado.web.StaticFileHandler, {'path': '/share/data/labdb/'}),
+          (r'/api/list/projects/all', ListAllProjectsQueryHandler),
+          (r'/api/list/projectfiles/(?P<project_name>.+)', ListProjectfilesHandler),
+          (r'/api/list/experiments/all', ListAllExperimentsQueryHandler),
+          (r'/api/list/experiments/(?P<project_name>.+)', ListExperimentsQueryHandler),
+          (r'/api/list/experiment/(?P<experiment_id>.+)', ListExperimentQueryHandler),
           (r'/api/protocols/(?P<protocol>.+)', ListProtocolsQueryHandler),
           (r'/api/protocol/save', SaveProtocolQueryHandler),
           (r'/api/protocol/delete/(?P<protocol>.+)', DeleteProtocolQueryHandler),
           (r'/index.html', DefaultTemplateHandler),
           (r'/protocols.html', DefaultTemplateHandler),
+          (r'/platedesign.html', DefaultTemplateHandler),
+          (r'/compound.html', DefaultTemplateHandler),
+          (r'/experiment.html', DefaultTemplateHandler),
+          (r'/plate.html', DefaultTemplateHandler),
           (r'/', IndexTemplateHandler),
          ]
          

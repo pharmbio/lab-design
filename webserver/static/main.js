@@ -1,5 +1,5 @@
 /*
-  Javascript version: ECMAScript 6 (Javascript 6)
+  Javascript version: ES 7
  */
 
 function createEmptyTable(size) {
@@ -224,7 +224,114 @@ function getColIndexFrowWellName(name) {
   return colIndex;
 }
 
+//
+//
+// Project
+//
+// 
+function updateProjectSelect(projects, selected = "") {
 
+  console.log("Inside updateProjectSelect, projects", projects);
+
+  // This select is not available on all pages, return if not
+  let elemSelect = document.getElementById('project-select');
+
+  // reset
+  elemSelect.options.length = 0;
+  elemSelect.options.selectedIndex = -1;
+
+  // Just loop all projects
+  let index = 0;
+  for(const project of projects) {
+    console.log("project", project)
+    console.log("project.name", project.name)
+    elemSelect.options.add(new Option(project.name));
+    // Maybe select option
+    if (selected === project) {
+      elemSelect.options.selectedIndex = index;
+    }
+    index ++;
+  }
+
+}
+
+function redrawSelectedProject() {
+  let elem = document.getElementById('project-select');
+  let projectName = elem.options[elem.selectedIndex].value;
+  console.log("selected projectName", projectName);
+  
+
+  apiCreateProjectFilesTable(projectName, "project-files-table-div");
+
+}
+
+function initProjectsUI() {
+  apiListProjects();
+}
+
+function redrawProjectsUI(projects, selected = "") {
+  updateProjectSelect(projects, selected);
+  redrawSelectedProject();
+}
+
+function apiListProjects(selected = "") {
+
+  fetch('/api/list/projects/all')
+    .then(response => response.json())
+    .then(data => {
+
+      console.log('projects data', data);
+
+      let projects = data.result;
+
+      console.log("projects", projects);
+
+      console.log("projects loaded");
+      redrawProjectsUI(projects, selected);
+
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    })
+}
+
+
+function apiCreateProjectFilesTable(project_name, table_div) {
+
+  fetch('/api/list/projectfiles/' + project_name)
+
+    .then(function (response) {
+      if (response.status === 200) {
+        response.json().then(function (json) {
+
+          console.log('result', json);
+          drawTable(json['result'], table_div)
+
+        });
+      }
+      else {
+        response.text().then(function (text) {
+          displayModalServerError(response.status, text);
+        });
+      }
+    })
+
+    .catch(function (error) {
+      console.log(error);
+      displayModalError(error);
+    });
+
+}
+
+
+
+
+
+//
+//
+// Protocol
+//
+// 
 var _loaded_protocols = null;
 
 function setProtocols(protocols) {
@@ -350,11 +457,6 @@ function updateProtocolSelect(selected = "") {
       elemSelect.options.selectedIndex = index;
     }
   });
-}
-
-function setProtocolSelection(protocol) {
-  let elemSelect = document.getElementById('protocol-select');
-  elemSelect.selectedIndex = getSelectIndexFromSelectValue(elemSelect, protocol);
 }
 
 function redrawSelectedProtocol() {
@@ -550,4 +652,75 @@ function initPlatedesignUI() {
       cell.innerHTML = "" + index;
     });
   
+}
+
+function drawTable(rows, divname) {
+
+  console.log("rows", rows);
+  console.log("divname", divname);
+
+  let container = document.getElementById(divname);
+
+  // Create Table
+  let table = document.createElement('table');
+  table.id = divname + "-table";
+  table.className = 'table text-xsmall';
+
+  // First add header row
+  let headerRow = document.createElement('tr');
+
+  // First row in rows is header
+  let cols = rows[0];
+
+  for (let col = 0; col < cols.length; col++) {
+
+    let header_cell = document.createElement('th');
+    header_cell.innerHTML = cols[col];
+    //header_cell.className = 'headerCell';
+    headerRow.appendChild(header_cell);
+  }
+  table.appendChild(headerRow);
+
+  // Now add rows (start from 1 since 0 is headers)
+  for (let row = 1; row < rows.length; row++) {
+    let rowElement = document.createElement('tr');
+    for (let col = 0; col < cols.length; col++) {
+
+      let cell = document.createElement('td');
+      let content = rows[row][col];
+      if(typeof content == 'object'){
+        content = JSON.stringify(content);
+      }
+
+      if(content === "null"){
+        content = "";
+      }
+
+      // Truncate large content
+      TRUNCATE_LEN = 1000;
+      if(content != null && content.length > TRUNCATE_LEN){
+        content = content.substring(0, TRUNCATE_LEN);
+        content += "....."
+      }
+      
+      cell.innerHTML = content;
+      
+      //cell.className = 'tableCell';
+      rowElement.appendChild(cell);
+    }
+
+    table.appendChild(rowElement);
+  }
+
+  removeChildren(container);
+  container.append(table)
+
+  console.log("drawTable finished")
+
+}
+
+function removeChildren(domObject) {
+  while (domObject.firstChild) {
+    domObject.removeChild(domObject.firstChild);
+  }
 }

@@ -9,6 +9,162 @@ def get_connection():
                                  database=labdesign_settings.DB_NAME,
                                  user=labdesign_settings.DB_USER, password=labdesign_settings.DB_PASS)
 
+def put_connection(connection):
+    connection.close()
+
+
+def list_all_projects():
+
+    logging.debug("list_all_projects")
+
+    conn = None
+    try:
+
+        conn = get_connection()
+
+        query = ("SELECT name "
+                 "FROM project "
+                 "ORDER BY name")
+
+        logging.info("query" + str(query))
+
+        cursor = conn.cursor()
+        cursor.execute(query)
+
+        resultlist = []
+
+        for row in cursor:
+            resultlist.append({'name': row[0]})
+                               
+        cursor.close()
+        put_connection(conn)
+        conn = None
+
+        logging.debug(json.dumps(resultlist, indent=2))
+
+        return resultlist
+
+    except (Exception, psycopg2.DatabaseError) as err:
+        logging.exception("Message")
+        raise err
+    finally:
+        if conn is not None:
+            put_connection(conn)
+
+
+def list_all_experiments():
+
+    logging.debug("inside list_all_experiments")
+
+    conn = None
+    try:
+
+        conn = get_connection()
+
+        query = ("SELECT id, name "
+                 "FROM experiment "
+                 "ORDER BY name")
+
+        logging.info("query" + str(query))
+
+        cursor = conn.cursor()
+        cursor.execute(query)
+
+        resultlist = []
+
+        for row in cursor:
+            resultlist.append({'id': row[0]})
+            resultlist.append({'name': row[1]})
+                               
+        cursor.close()
+
+        logging.debug(json.dumps(resultlist, indent=2))
+
+        return resultlist
+
+    except (Exception, psycopg2.DatabaseError) as err:
+        logging.exception("Message")
+        raise err
+    finally:
+        if conn is not None:
+            put_connection(conn)
+
+def list_experiments(project_name):
+
+    logging.debug("list_experiments(project_name), " + str(project_name))
+
+    conn = None
+    try:
+
+        conn = get_connection()
+
+        query = ("SELECT id, name "
+                 "FROM experiment "
+                 "WHERE project_name = %s"
+                 "ORDER BY name")
+
+        logging.info("query" + str(query))
+
+        cursor = conn.cursor()
+        cursor.execute(query, (project_name,))
+        
+        resultlist = []
+
+        for row in cursor:
+            resultlist.append({'id': row[0]})
+            resultlist.append({'name': row[1]})
+                               
+        cursor.close()
+
+        logging.debug(json.dumps(resultlist, indent=2))
+
+        return resultlist
+
+    except (Exception, psycopg2.DatabaseError) as err:
+        logging.exception("Message")
+        raise err
+    finally:
+        if conn is not None:
+            put_connection(conn)
+
+def list_experiment(experiment_id):
+
+    logging.debug("list_experiment(experiment_id), " + str(experiment_id))
+
+    conn = None
+    try:
+
+        conn = get_connection()
+
+        query = ("SELECT id, name "
+                 "FROM experiment "
+                 "WHERE experiment_id = %s"
+                 "ORDER BY name")
+
+        logging.info("query" + str(query))
+
+        cursor = conn.cursor()
+        cursor.execute(query, (experiment_id,))
+        
+        resultlist = []
+
+        for row in cursor:
+            resultlist.append({'id': row[0]})
+            resultlist.append({'name': row[1]})
+                               
+        cursor.close()
+
+        logging.debug(json.dumps(resultlist, indent=2))
+
+        return resultlist
+
+    except (Exception, psycopg2.DatabaseError) as err:
+        logging.exception("Message")
+        raise err
+    finally:
+        if conn is not None:
+            put_connection(conn)
+
 def list_protocols():
 
     logging.debug("list_protocols")
@@ -45,7 +201,7 @@ def list_protocols():
         raise err
     finally:
         if conn is not None:
-            conn.close()
+            put_connection(conn)
 
 def save_protocol(name, data):
 
@@ -81,7 +237,7 @@ def save_protocol(name, data):
         raise err
     finally:
         if conn is not None:
-            conn.close()
+            put_connection(conn)
 
 def delete_protocol(name):
 
@@ -109,4 +265,41 @@ def delete_protocol(name):
         raise err
     finally:
         if conn is not None:
-            conn.close()
+            put_connection(conn)
+
+
+def select_labfile_description(path):
+
+    conn = None
+    try:
+
+        query = ("SELECT description "
+                 "FROM labfiles "
+                 "WHERE path = %s")
+
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(query, (path,))
+        description = cursor.fetchone()
+        cursor.close()
+        
+        return description
+
+    except (Exception, psycopg2.DatabaseError) as err:
+        logging.exception("Message")
+        raise err
+    finally:
+        if conn is not None:
+            put_connection(conn)
+
+#def select_project
+
+#def select experiment(experiment_id)
+
+#def select_files(experiment_id) > [name=, description=]
+
+#def select plates(experiment_id) -> [plate_barcode]
+
+#def select_plate(plate_barcode)
+
+#def select_wells(plate_barcode)

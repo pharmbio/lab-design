@@ -1,39 +1,44 @@
+import logging
 import os
+import pathlib
 
-def create_merged_filepath(outdir, paths, suffix='.png'):
 
-    # create a filename
-    for path in paths:
-      filename = "" + os.path.basename(path) + "-"
+def list_projectfiles(project_name):
 
-    filename = filename + suffix
+    # TODO parameterize
+    return list_files("/share/data/labdb/projects/" + str(project_name))
 
-    # create a subpath
-    # strip / from beginning if there is one since this should be a subpath, otherwise os.path.join will fail
-    subpath = os.path.dirname(paths[0]).strip('/')
+def list_experimentfiles(experiment_id):
 
-    # strip / from original path - otherwise os.path.join will fail
-    merged_path = os.path.join(outdir, subpath)
+    # TODO parameterize
+    return list_files("/share/data/labdb/experiments/")
 
-    # add filename to path
-    merged_path = os.path.join(merged_path, filename)
+def list_files(input_path):
 
-    return merged_path
+    logging.debug("input_path:" + str(input_path))
 
-def create_pngconverted_filepath(outdir, path, suffix='.png'):
+    files = list(pathlib.Path(input_path).rglob("*.*"))
 
-    # create a filename
-    filename = "" + os.path.basename(path)
-    filename = filename + suffix
+    logging.debug("files:" + str(files))
 
-    # create a subpath
-    # strip / from beginning if there is one since this should be a subpath, otherwise os.path.join will fail
-    subpath = os.path.dirname(path).strip('/')
+    return files
 
-    # strip / from original path - otherwise os.path.join will fail
-    converted_path = os.path.join(outdir, subpath)
-
-    # add filename to path
-    converted_path = os.path.join(converted_path, filename)
-
-    return converted_path
+# def list_files(input_path):
+# 
+#     logging.debug("input_path:" + str(input_path))
+# 
+#     files = list(pathlib.Path(input_path).rglob("*.*"))
+# 
+#     logging.debug("files:" + str(files))
+# 
+#     # create a table of the files with only one column and one file per row (each row is represented as a list)
+#     result_table = []
+# 
+#     # Then add the files
+#     for file in files:
+#         relative_file = file.relative_to(input_path)
+#         result_table.append( {"path": str(relative_file)} )
+# 
+#     #logging.debug("result_table:" + str(result_table))
+# 
+#     return result_table
