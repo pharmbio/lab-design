@@ -15,8 +15,19 @@
 
         <div class="input-group align-bottom">
 
-          <!-- Protocol selector -->
+          
+          <!-- Project selector -->
           <select class="form-control" style="max-width: 300px;" id="project-select">
+
+            {% for proj in projects %}
+
+            {{ debug("proj:" + str(proj)) }}
+
+            <option value="{{ proj['name'] }}">{{ proj['name'] }}</option>
+            <!-- Maybe add selected -->
+
+            {% end %}
+
           </select>
           
           <!-- Add button-->
@@ -186,29 +197,6 @@
 
 {% block endscripts %}
 
-<script>
-
-// Setup UI
-initProjectsUI();
-
-// jQuery init methods
-$(document).ready(function () {
-
-  // Attach event listeners
-  $("#project-select").change(redrawSelectedProject);
-  $("#plate-size-select").change(initProjectsUI);
-
-  $("#project-description").dblclick(function(){
-    console.log("doubleclick");
-    console.log("document.getElementById('project-description')", document.getElementById('project-description'));
-    document.getElementById('project-description').readonly = "False";
-    document.getElementById('project-description').removeAttribute('readonly');
-    console.log("document.getElementById('project-description')", document.getElementById('project-description'));
-  });
-
-});
-
-</script>
 
 {% end %}
 

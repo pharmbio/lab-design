@@ -88,7 +88,7 @@ class WellOrder {
       return;
     }
 
-    plate[pos_x][pos_y] = counter.value; // mark the point so that I know if I passed through it. 
+    plate[pos_x][pos_y] = counter.value; // mark the point so that I know if I passed through it.
     wellOrder.push("" + getWellName(pos_x, pos_y));
     counter.value++;
 
@@ -106,7 +106,7 @@ class WellOrder {
       return;
     }
 
-    plate[pos_x][pos_y] = counter.value; // mark the point so that I know if I passed through it. 
+    plate[pos_x][pos_y] = counter.value; // mark the point so that I know if I passed through it.
     wellOrder.push("" + getWellName(pos_x, pos_y));
     counter.value++;
 
@@ -124,7 +124,7 @@ class WellOrder {
       return;
     }
 
-    plate[pos_x][pos_y] = counter.value; // mark the point so that I know if I passed through it. 
+    plate[pos_x][pos_y] = counter.value; // mark the point so that I know if I passed through it.
     wellOrder.push("" + getWellName(pos_x, pos_y));
     counter.value++;
 
@@ -142,7 +142,7 @@ class WellOrder {
       return;
     }
 
-    plate[pos_x][pos_y] = counter.value; // mark the point so that I know if I passed through it. 
+    plate[pos_x][pos_y] = counter.value; // mark the point so that I know if I passed through it.
     wellOrder.push("" + getWellName(pos_x, pos_y));
     counter.value++;
 
@@ -228,7 +228,7 @@ function getColIndexFrowWellName(name) {
 //
 // Project
 //
-// 
+//
 function updateProjectSelect(projects, selected = "") {
 
   console.log("Inside updateProjectSelect, projects", projects);
@@ -259,7 +259,7 @@ function redrawSelectedProject() {
   let elem = document.getElementById('project-select');
   let projectName = elem.options[elem.selectedIndex].value;
   console.log("selected projectName", projectName);
-  
+
 
   apiCreateProjectFilesTable(projectName, "project-files-table-div");
 
@@ -331,7 +331,7 @@ function apiCreateProjectFilesTable(project_name, table_div) {
 //
 // Protocol
 //
-// 
+//
 var _loaded_protocols = null;
 
 function setProtocols(protocols) {
@@ -574,6 +574,96 @@ function apiSaveProtocol() {
     });
 }
 
+
+function apiImportPlateLayout() {
+  return apiImportTableRows('plate_layout',
+                            '#import-plate-layout-modal',
+                            'Plate-Layout data inserted OK')
+}
+
+function apiImportPlate(){
+  return apiImportTableRows('plate',
+                            '#import-plate-modal',
+                            'Plate data inserted OK')
+}
+
+function apiImportTableRows(table_name, modal_id, ok_message) {
+  let table_rows_file = document.getElementById('new_table_rows_file').files[0];
+  let formData = new FormData(document.getElementById('main-form'));
+  formData.append("table_name", table_name);
+  formData.append("new_table_rows_file", table_rows_file);
+  fetch('/api/table_rows/import', {
+    method: 'POST',
+    body: formData
+    })
+    .then(function (response) {
+      if (response.status === 200) {
+        response.json().then(function (json) {
+
+          location.reload();
+          $(modal_id).modal('hide');
+          showOKModal(ok_message);
+          // Clear value
+          document.getElementById('new_table_rows_file').value = '';
+
+        });
+      }
+      else {
+        response.text().then(function (text) {
+          displayModalServerError(response.status, text);
+          // Clear value
+          document.getElementById('new_table_rows_file').value = '';
+        });
+      }
+
+
+
+    })
+    .catch(function (error) {
+      console.log(error);
+      displayModalError(error);
+      // Clear value
+      document.getElementById('new_table_rows_file').value = '';
+    });
+
+}
+
+
+function apiSelectPlateLayout() {
+  // verify
+  //verifyProtocolStepsJson(false);
+
+  let formData = new FormData(document.getElementById('main-form'));
+  formData.append("new_plate_layout_file", new_plate_layout_file);
+
+  fetch('/api/plate_layout/', {
+    method: 'POST',
+    body: formData
+    })
+    .then(function (response) {
+      if (response.status === 200) {
+        response.json().then(function (json) {
+
+          location.reload();
+          $("#import-plate_layout-modal").modal('hide');
+          showOKModal("Plate Layout Saved OK");
+
+        });
+      }
+      else {
+        response.text().then(function (text) {
+          displayModalServerError(response.status, text);
+        });
+      }
+
+    })
+    .catch(function (error) {
+      console.log(error);
+      displayModalError(error);
+    });
+}
+
+
 function apiDeleteProtocol() {
 
   let deleteName = document.getElementById('delete-protocol-name').value;
@@ -651,7 +741,7 @@ function initPlatedesignUI() {
       let cell = document.getElementById(wellName);
       cell.innerHTML = "" + index;
     });
-  
+
 }
 
 function drawTable(rows, divname) {
@@ -702,9 +792,9 @@ function drawTable(rows, divname) {
         content = content.substring(0, TRUNCATE_LEN);
         content += "....."
       }
-      
+
       cell.innerHTML = content;
-      
+
       //cell.className = 'tableCell';
       rowElement.appendChild(cell);
     }

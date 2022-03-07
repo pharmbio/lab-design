@@ -6,11 +6,10 @@ import json
 import logging
 
 import tornado.web
-from dbqueries import (list_protocols, save_protocol, delete_protocol, list_all_projects, select_labfile_description,
-                       list_all_experiments, list_experiments, list_experiment)
-from fileutils import list_projectfiles
+import dbqueries
+import fileutils
 
-class DeleteProtocolQueryHandler(tornado.web.RequestHandler): # pylint: disable=abstract-method
+class DeleteProtocolQueryHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         header = "Content-Type"
@@ -22,35 +21,54 @@ class DeleteProtocolQueryHandler(tornado.web.RequestHandler): # pylint: disable=
         """
         logging.info("plate_name: " + str(protocol))
 
-        result = delete_protocol(protocol)
+        result = dbqueries.delete_protocol(protocol)
 
         logging.debug(result)
         self.finish({'result':result})
 
 
-class SaveProtocolQueryHandler(tornado.web.RequestHandler): # pylint: disable=abstract-method
+class ImportTableRowsQueryHandler(tornado.web.RequestHandler):
     """
     The query handler handles form posts and returns list of results
     """
     def post(self):
         """Handles POST requests.
         """
-        
+
+        # log all input parameters
+        logging.debug("%r %s" % (self.request, self.request.body.decode()))
+
+        table_name = self.get_argument("table_name")
+        file_body = self.request.files['new_table_rows_file'][0]['body']
+        body_as_string = str(file_body, encoding='utf-8')
+
+        results = dbqueries.import_table_data(table_name, body_as_string)
+        logging.debug(results)
+        self.finish({'results':results})
+
+
+class SaveProtocolQueryHandler(tornado.web.RequestHandler):
+    """
+    The query handler handles form posts and returns list of results
+    """
+    def post(self):
+        """Handles POST requests.
+        """
+
         # log all input parameters
         logging.debug("%r %s" % (self.request, self.request.body.decode()))
 
         protocol_steps = self.get_argument("plate-protocol-steps")
         new_name = self.get_argument("new_name")
-        
+
         #logging.debug("form_data:" + str(form_data))
 
-        results = save_protocol(new_name, protocol_steps)
+        results = dbqueries.save_protocol(new_name, protocol_steps)
         logging.debug(results)
         self.finish({'results':results})
 
 
-class ListProtocolsQueryHandler(tornado.web.RequestHandler): # pylint: disable=abstract-method
-
+class ListProtocolsQueryHandler(tornado.web.RequestHandler):
     def prepare(self):
         header = "Content-Type"
         body = "application/json"
@@ -61,13 +79,13 @@ class ListProtocolsQueryHandler(tornado.web.RequestHandler): # pylint: disable=a
         """
         logging.info("plate_name: " + str(protocol))
 
-        result = list_protocols()
+        result = dbqueries.list_protocols()
 
         logging.debug(result)
         self.finish({'result':result})
 
 
-class ListAllProjectsQueryHandler(tornado.web.RequestHandler): # pylint: disable=abstract-method
+class ListAllProjectsQueryHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         header = "Content-Type"
@@ -78,12 +96,12 @@ class ListAllProjectsQueryHandler(tornado.web.RequestHandler): # pylint: disable
         """Handles GET requests.
         """
 
-        result = list_all_projects()
+        result = dbqueries.list_all_projects()
 
         logging.debug(result)
         self.finish({'result':result})
 
-class ListProjectfilesHandler(tornado.web.RequestHandler): #pylint: disable=abstract-method
+class ListProjectfilesHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         header = "Content-Type"
@@ -95,7 +113,7 @@ class ListProjectfilesHandler(tornado.web.RequestHandler): #pylint: disable=abst
         """
         logging.info("inside ListProjectfilesHandler")
 
-        projfiles = list_projectfiles(project_name)
+        projfiles = fileutils.list_projectfiles(project_name)
 
         logging.debug("projfiles:" + str(projfiles))
 
@@ -106,13 +124,13 @@ class ListProjectfilesHandler(tornado.web.RequestHandler): #pylint: disable=abst
         # Add description from db to each file
         for path in projfiles:
             logging.debug(path)
-            description = select_labfile_description(str(path))
+            description = dbqueries.select_labfile_description(str(path))
             result.append([str(path), description])
 
         logging.debug(result)
         self.finish({'result':result})
 
-class ListExperimentfilesHandler(tornado.web.RequestHandler): #pylint: disable=abstract-method
+class ListExperimentfilesHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         header = "Content-Type"
@@ -130,7 +148,7 @@ class ListExperimentfilesHandler(tornado.web.RequestHandler): #pylint: disable=a
         self.finish({'result':result})
 
 
-class ListAllExperimentsQueryHandler(tornado.web.RequestHandler): # pylint: disable=abstract-method
+class ListAllExperimentsQueryHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         header = "Content-Type"
@@ -143,13 +161,13 @@ class ListAllExperimentsQueryHandler(tornado.web.RequestHandler): # pylint: disa
 
         logging.info("inside ListAllExperimentsQueryHandler")
 
-        result = list_all_experiments()
+        result = dbqueries.list_all_experiments()
 
         logging.debug(result)
         self.finish({'result':result})
 
 
-class ListExperimentsQueryHandler(tornado.web.RequestHandler): # pylint: disable=abstract-method
+class ListExperimentsQueryHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         header = "Content-Type"
@@ -162,12 +180,12 @@ class ListExperimentsQueryHandler(tornado.web.RequestHandler): # pylint: disable
 
         logging.info("inside ListExperimentsQueryHandler, project_name=" + str(project_name))
 
-        result = list_experiments(project_name)
+        result = dbqueries.list_experiments(project_name)
 
         logging.debug(result)
         self.finish({'result':result})
 
-class ListExperimentQueryHandler(tornado.web.RequestHandler): # pylint: disable=abstract-method
+class ListExperimentQueryHandler(tornado.web.RequestHandler):
 
     def prepare(self):
         header = "Content-Type"
@@ -180,7 +198,7 @@ class ListExperimentQueryHandler(tornado.web.RequestHandler): # pylint: disable=
 
         logging.info("inside ListExperimentQueryHandler, experiment_id=" + str(experiment_id))
 
-        result = list_experiment(experiment_id)
+        result = dbqueries.list_experiment(experiment_id)
 
         logging.debug(result)
         self.finish({'result':result})

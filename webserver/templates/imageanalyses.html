@@ -7,18 +7,26 @@
 
 <div class="container-fluid flex-fill">
   <br>
-  <h4>Compounds</h4>
+  <h4>Image Analyses per project and plate</h4>
 </div>
 
 <!-- Toolbar -->
 
 <div id="toolbar-div" class="container-fluid mt-2 mb-2">
 
+  <!-- Plate select -->
+  <select class="form-control" style="max-width: 300px;" name="project-select" id="project-select" onchange="this.form.submit()">
+
+    {% raw project_select_options %}
+
+  </select>
+
+
   <div id="plate-table-div" class="overflow-auto mt-5 mb-2">
 
-    <table id="compounds-table" class="table text-xsmall">
+    <table id="image-analyses-per-plate-table" class="table text-xsmall">
 
-    {% raw compounds_table %}
+    {% raw imgAnalysesTable %}
 
     </table>
 

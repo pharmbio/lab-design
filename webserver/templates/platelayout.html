@@ -7,7 +7,7 @@
 
 <div class="container-fluid flex-fill">
   <br>
-  <h4>Plate</h4>
+  <h4>Plate layout</h4>
 </div>
 
 <!-- Toolbar -->
@@ -16,27 +16,45 @@
 
   <div class="input-group align-bottom">
 
-    <!-- Select -->
-    <select class="form-control" style="max-width: 300px;" name="plate-select" id="plate-select" onchange="this.form.submit()">
+    <!-- Layout select -->
+    <select class="form-control" style="max-width: 300px;" name="layout-select" id="layout-select" onchange="this.form.submit()">
 
-      {% raw plate_select_options %}
+      {% raw layout_select_options %}
 
     </select>
 
     <!-- Import button-->
-    <button type="button" id="import-plate-button" class="btn btn-info ml-2" data-toggle="modal"
-      data-target="#import-plate-modal">Import Plate</button>
+    <button type="button" id="import-plate_layout-button" class="btn btn-info ml-2" data-toggle="modal"
+      data-target="#import-plate-layout-modal">Import Layout</button>
+
+  </div>
+
+
+  <div id="plate-layout-table-div" class="overflow-auto mt-2 mb-2">
+
+    {% if len(visualPlateLayout) > 0 %}
+
+      <table id="plate-visual-layout-table" class="plateTable text-xsmall">
+        {% raw visualPlateLayout %}
+      </table>
+
+    {% else %}
+
+    No visual layout
+
+   {% end %}
+
 
   </div>
 
 
   <div id="plate-table-div" class="overflow-auto mt-5 mb-2">
 
-    {% if len(plateTable) > 0 %}
+    {% if len(plateLayoutTable) > 0 %}
 
-      <table id="plate-table" class="table text-xsmall">
+      <table id="plate-layout-table" class="table text-xsmall">
 
-        {% raw plateTable %}
+        {% raw plateLayoutTable %}
 
       </table>
     {% else %}
@@ -60,11 +78,11 @@
 {% block dialogs %}
 
 <!-- Modal dialog "Import  ...." -->
-<div class="modal" data-backdrop="static" id="import-plate-modal" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal" data-backdrop="static" id="import-plate-layout-modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Import Plate</h5>
+        <h5 class="modal-title">Import Plate-Layout</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -79,11 +97,12 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="apiImportPlate()">Insert file to db</button>
+        <button type="button" class="btn btn-primary" onclick="apiImportPlateLayout()">Insert file to db</button>
       </div>
     </div>
   </div>
 </div>
+
 
 {% end %}
 
